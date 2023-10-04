@@ -6,21 +6,19 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
-public class IPV4Address {
-    private String dotDecimalRepresentation;
-    private Integer numericRepresentation;
-    public IPV4Address(String dotDecimalRepresentation) throws UnknownHostException {
-        this.dotDecimalRepresentation = dotDecimalRepresentation;
-        //Converts a String that represents an IP to an int.
-        InetAddress i = InetAddress.getByName(this.dotDecimalRepresentation);
-        this.numericRepresentation = ByteBuffer.wrap(i.getAddress()).getInt();
+public class IPV4AddressBlockResult {
+    private IPV4Address ipv4Address;
+    private BlockListStatus blockListStatus;
+    public IPV4AddressBlockResult(IPV4Address ipv4Address) throws UnknownHostException {
+        this.ipv4Address = ipv4Address;
     }
 
-    public String getDotDecimalRepresentation() {
-        return dotDecimalRepresentation;
+    public void setBlockListStatus(BlockListStatus blockListStatus) {
+        this.blockListStatus = blockListStatus;
     }
 
-    public Integer getNumericRepresentation() {
-        return numericRepresentation;
+    @JsonProperty
+    public BlockListStatus getBlockListStatus() {
+        return blockListStatus;
     }
 }

@@ -9,54 +9,27 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class LockFreeBlackListBuilder {
-        protected Iterable<Long> keys;
-        protected TransformationStrategy<Long> transform;
-        protected File tempDir;
+public class IPV4AddressListBuilder {
+        protected Iterable<IPV4Address> keys;
+        protected TransformationStrategy<IPV4Address> transform;
+        protected File ipAddressListFile;
 
-        public LockFreeBlackListBuilder () {
+        public IPV4AddressListBuilder(String ipAddressListPath) {
+            this.ipAddressListFile = new File(ipAddressListPath);
         }
 
-        public LockFreeBlackListBuilder<Long> keys(Iterable<? extends T> keys) {
+        public IPV4AddressListBuilder keys(Iterable<IPV4Address> keys) {
             this.keys = keys;
             return this;
         }
 
-        public GOVMinimalPerfectHashFunction.Builder<T> transform(TransformationStrategy<? super T> transform) {
-            this.transform = transform;
+        public IPV4AddressListBuilder tempDir(File ipAddressListFile) {
+            this.ipAddressListFile = ipAddressListFile;
             return this;
         }
-
-        public GOVMinimalPerfectHashFunction.Builder<T> signed(int signatureWidth) {
-            this.signatureWidth = signatureWidth;
-            return this;
-        }
-
-        public GOVMinimalPerfectHashFunction.Builder<T> tempDir(File tempDir) {
-            this.tempDir = tempDir;
-            return this;
-        }
-
-        public GOVMinimalPerfectHashFunction.Builder<T> store(BucketedHashStore<T> bucketedHashStore) {
-            this.bucketedHashStore = bucketedHashStore;
-            return this;
-        }
-
         public List<IPV4Address> build() throws IOException {
-            if (this.built) {
-                throw new IllegalStateException("This builder has been already used");
-            } else {
-                this.built = true;
-                if (this.transform == null) {
-                    if (this.bucketedHashStore == null) {
-                        throw new IllegalArgumentException("You must specify a TransformationStrategy, either explicitly or via a given BucketedHashStore");
-                    }
 
-                    this.transform = this.bucketedHashStore.transform();
-                }
 
-                return null;
-            }
+            return null;
         }
-    }
 }

@@ -1,0 +1,23 @@
+version: '3.5'
+services:
+  blocklist:
+    build:
+      context: .
+      dockerfile: ../blocklist-Dockerfile
+    hostname: blocklist01
+    expose:
+      - "8080"
+    volumes:
+      - ./conf:/conf
+  nginx:
+      image: nginx:latest
+      volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      depends_on:
+        - blocklist 
+      ports:
+        - "8000:8000"
+networks:
+  default:
+    driver: bridge
+    name: blocklist
