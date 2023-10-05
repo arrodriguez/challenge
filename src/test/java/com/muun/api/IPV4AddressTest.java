@@ -1,6 +1,6 @@
 package com.muun.api;
 
-import org.assertj.core.api.Assertions;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,10 +14,10 @@ public class IPV4AddressTest {
     @Test public void shouldConvertfromIPV4DottedToNumerical() throws UnknownHostException {
         String dotDecimalIP = "103.233.155.93";
         IPV4Address address = new IPV4Address(dotDecimalIP);
-        Assertions.assertThat(address.getNumericRepresentation() == 1743362909);
+        assertTrue(address.getNumericRepresentation() == 1743362909);
     }
-    @Test public void shouldThrowForInvalidIPV4Dotted() {
-        String dotDecimalIP = "103.233.155.93/23";
-        Assertions.assertThatThrownBy(() -> new IPV4Address(dotDecimalIP)).isInstanceOf(UnknownHostException.class);
+    @Test public void shouldThrowForInvalidIPV4Dotted() throws UnknownHostException {
+        String dotDecimalIP = "103.233.155.93/24";
+        assertThrows(UnknownHostException.class, () -> new IPV4Address(dotDecimalIP));
     }
 }

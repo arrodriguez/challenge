@@ -1,7 +1,10 @@
 package com.muun.core;
 
+import com.codahale.metrics.MetricRegistry;
 import com.muun.api.IPV4Address;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,7 +13,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class IPAddressExtractorTest {
+public class IPAddressListExtractorTest {
+    public MetricRegistry registry = Mockito.mock(MetricRegistry.class);
 
     @Test
     public void testExtractIPAddresses() throws Exception {
@@ -19,7 +23,7 @@ public class IPAddressExtractorTest {
         Path tempFile = Files.createTempFile("temp", ".txt");
         Files.write(tempFile, content.getBytes());
 
-        IPAddressExtractor extractor = new IPAddressExtractor(tempFile.toString());
+        IPAddressListExtractor extractor = new IPAddressListExtractor(tempFile.toString(), this.registry);
         List<IPV4Address> ipAddressList = extractor.extractIPAddresses();
 
 

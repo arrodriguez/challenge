@@ -1,9 +1,15 @@
+
 blockListDownloadURL: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
 blockListPath: /app/ipsum.txt
-blockListRepoOwner: stamparm
-blockListRepoName: ipsum
+
+githubEventsApi:
+    githubEventApiURL: https://api.github.com/repos/%s/%s/events
+    githubEventApiAcceptHeader: application/vnd.github.v3+json
+    githubEventsApiUserAgent: ForcePushMonitor
+    githubRepoOwner: stamparm
+    githubRepoName: ipsum
 
 logging:
-  level: INFO
-  loggers:
-    com.muun: DEBUG
+    level: INFO
+    loggers:
+        com.muun: DEBUG

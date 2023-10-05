@@ -18,33 +18,34 @@ start_blocklist_service() {
 }
 
 load_ipblocklist_dataset() {
-    local eventId="$1"
-    local eventcmd=""
+    local versionID="$1"
+    local versionCmd=""
 
-    if [ -n "$eventId" ]; then 
-       eventcmd="--event-id $eventId"
+    if [ -n "$versionID" ]; then
+       versionCmd="--version-id $versionID"
     fi
 
-    command="java -jar $FAT_JAR monitor $CONFIG $eventcmd"
+    command="java -jar $FAT_JAR monitor $CONFIG $versionCmd"
 
     result=$($command)
 
     updated=$(echo "$result" | jq -r '.updated')
-    eventId=$(echo "$result" | jq -r '.eventId')
+    versionID=$(echo "$result" | jq -r '.versionId')
 
     if [ "$updated" = "true" ]; then
         curl -XPUT 'http://localhost:8080/blocklist/ips:reload'
     fi
 
-    echo "$eventId"
+    echo "$versionID"
 }
 
-eventId="$(load_ipblocklist_dataset)"
+versionID="$(load_ipblocklist_dataset)"
 
 start_blocklist_service
 trap "kill $TARGET_PID 2>/dev/null" EXIT
 
-while true; do 
+while true; do
+    # Sleep every 5minutes, this guarantee to NOT reach Github rate-limit
     sleep 5m
-    eventId="$(load_ipblocklist_dataset $eventId)"
+    versionID="$(load_ipblocklist_dataset $versionID)"
 done

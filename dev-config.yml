@@ -1,9 +1,14 @@
 blockListDownloadURL: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
 blockListPath: ./ipsum.txt
-blockListRepoOwner: arrodriguez
-blockListRepoName: losiunicos
+
+githubEventsApi:
+    githubEventApiURL: https://api.github.com/repos/%s/%s/events
+    githubEventApiAcceptHeader: application/vnd.github.v3+json
+    githubEventsApiUserAgent: ForcePushMonitor
+    githubRepoOwner: arrodriguez
+    githubRepoName: losiunicos
 
 logging:
-  level: INFO
-  loggers:
-    com.muun: DEBUG
+    level: INFO
+    loggers:
+        com.muun: DEBUG

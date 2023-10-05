@@ -2,17 +2,17 @@ package com.muun.core;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EventID {
-    private String eventId;
+public class VersionID {
+    private String versionId;
     private Boolean updated;
 
-    public EventID(String eventId) {
-        this.eventId = eventId;
+    public VersionID(String versionId) {
+        this.versionId = versionId;
         this.updated = Boolean.FALSE;
     }
     @JsonProperty
     public String getEventId() {
-        return eventId;
+        return versionId;
     }
     @JsonProperty
     public Boolean updated() {

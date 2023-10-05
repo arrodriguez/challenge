@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.muun.api.BlockListStatus;
 import com.muun.api.IPV4Address;
 import com.muun.api.IPV4AddressBlockResult;
-import com.muun.core.IPAddressExtractor;
+import com.muun.core.IPAddressListExtractor;
 import com.muun.db.LockFreeBlackListDao;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -17,11 +17,11 @@ import java.net.UnknownHostException;
 public class BlocklistResource {
 
     private final LockFreeBlackListDao lockFreeBlackListDao;
-    private final String lockFreeBlackListPath;
+    private IPAddressListExtractor extractor;
 
-    public BlocklistResource(LockFreeBlackListDao lockFreeBlackListDao, String lockFreeBlackListPath){
+    public BlocklistResource(LockFreeBlackListDao lockFreeBlackListDao, IPAddressListExtractor extractor){
        this.lockFreeBlackListDao = lockFreeBlackListDao;
-       this.lockFreeBlackListPath = lockFreeBlackListPath;
+       this.extractor = extractor;
     }
     @GET
     @Path("/ips/{ipv4_address_dot_decimal}")
@@ -39,7 +39,6 @@ public class BlocklistResource {
     @PUT
     @Path("ips:reload")
     public void reloadBlockList() throws IOException {
-        IPAddressExtractor extractor = new IPAddressExtractor(this.lockFreeBlackListPath);
-        this.lockFreeBlackListDao.loadAndSwapKeys(extractor.extractIPAddresses());
+        this.lockFreeBlackListDao.loadAndSwapKeys(this.extractor.extractIPAddresses());
     }
 }
