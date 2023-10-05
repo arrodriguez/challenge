@@ -1,6 +1,5 @@
-blockListPath: /app/resources/ipsum.txt
 blockListDownloadURL: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
-blockListHostName: localhost:8080
+blockListPath: /app/ipsum.txt
 blockListRepoOwner: stamparm
 blockListRepoName: ipsum
 

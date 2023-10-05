@@ -27,11 +27,11 @@ public class BlockListChangesMonCommandTest {
     private HttpClient httpClient;
     @Mock
     private HttpResponse httpResponse;
-    private BlockListChangesMonCommand command;
+    private BlockListMonitorChangesCommand command;
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        command = new BlockListChangesMonCommand();
+        command = new BlockListMonitorChangesCommand();
         // Mock the static HttpClients.createDefault() method to return our mock httpClient
         mockStatic(HttpClients.class, invocation -> httpClient);
     }

@@ -6,10 +6,9 @@ RUN mvn clean install
 
 # Runtime stage
 FROM adoptopenjdk:11-jre-hotspot
-RUN apt-get update && apt-get install -y --no-install-reccomends curl
+RUN apt update && apt install -y --no-install-recommends curl jq
 
 WORKDIR /app
-MKDIR /app/resources
 COPY --from=build /app/target/blocklist-1.0-SNAPSHOT.jar /app
 COPY --from=build /app/config.yml /app
 COPY --from=build /app/infrastructure/start.sh /app

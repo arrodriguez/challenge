@@ -74,9 +74,13 @@ Given that the entire universe of keys for hash are given in advance, the idea w
 
 #### Drop wizard
 
-## Tradeoffs made for time constraints
+## Trade-offs Due to Time Constraints
 
-Also given that we have a requisite for updating the system with the changes, we can log and develop our internet history system that can be used for forecasting
+### Service observability: Telemetry & Alarming
+While the service comes with an out-of-the-box admin endpoint provided by Dropwizard, the base code lacks an observability system that can leverage these metrics. This observability is essential for production development, especially since there's no way to monitor if the sidecar updating the ipsum.txt dataset is functioning correctly. Ideally, one should retrieve the last time the blocklist was reloaded using the corresponding endpoint metric and set up an alarm to monitor when this metric fails. Typically, this monitoring is handled by the observability system.
+Another significant oversight in the current implementation is the absence of a centralized system for storing metrics. Without this, autoscaling based on the service load becomes challenging. It would necessitate polling all servers behind the load balancer, aggregating this data, and then making a decision to scale up or down. Most cloud providers utilize their own metric and observability systems to facilitate such functionality.
+
+### Also given that we have a requisite for updating the system with the changes, we can log and develop our internet history system that can be used for forecasting
 
 ### Mechanism to detect that the dataset update was successfull or went wrong. It can just a simple alert, we will have the metric but not the implementation
 ### Try and proves for an optimal hash function just as clustering, open vs close addressing , proves etc.
@@ -86,4 +90,6 @@ Also given that we have a requisite for updating the system with the changes, we
 ### Endpoints security, meaning that the endpoint which reloads the config can be call without any restriction potencially suffering a DDOS.
 ### Memory footprint and pressure
 ### Pooling interval of the github monitor
+### Rate limit of 60 per hour or 1 per minute the ideal would be run 1 every 5 minutes
+### Telemetry & Alarms === Observability
 

@@ -1,8 +1,7 @@
 blockListDownloadURL: https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
 blockListPath: ./ipsum.txt
-blockListHostName: localhost:8080
-blockListRepoOwner: stamparm
-blockListRepoName: ipsum
+blockListRepoOwner: arrodriguez
+blockListRepoName: losiunicos
 
 logging:
   level: INFO

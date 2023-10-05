@@ -8,8 +8,6 @@ public class IPBlocklistConfiguration extends Configuration {
     @NotEmpty
     private String blockListPath;
     @NotEmpty
-    private String blockListHostName;
-    @NotEmpty
     private String blockListRepoOwner;
     @NotEmpty
     private String blockListRepoName;
@@ -19,15 +17,6 @@ public class IPBlocklistConfiguration extends Configuration {
     @JsonProperty
     public String getBlockListPath() {
         return blockListPath;
-    }
-
-    @JsonProperty
-    public String getBlockListHostName() {
-        return blockListHostName;
-    }
-    @JsonProperty
-    public void setBlockListPath(String blockListPath) {
-        this.blockListPath = blockListPath;
     }
 
     @JsonProperty

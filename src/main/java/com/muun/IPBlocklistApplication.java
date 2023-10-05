@@ -1,6 +1,6 @@
 package com.muun;
 
-import com.muun.cli.BlockListChangesMonCommand;
+import com.muun.cli.BlockListMonitorChangesCommand;
 import com.muun.core.IPAddressExtractor;
 import com.muun.db.LockFreeBlackListDao;
 import com.muun.health.LockFreeBlackListHealthCheck;
@@ -24,7 +24,7 @@ public class IPBlocklistApplication extends Application<IPBlocklistConfiguration
 
     @Override
     public void initialize(final Bootstrap<IPBlocklistConfiguration> bootstrap) {
-        bootstrap.addCommand(new BlockListChangesMonCommand());
+        bootstrap.addCommand(new BlockListMonitorChangesCommand());
     }
 
     @Override
