@@ -76,7 +76,10 @@ Given that the entire universe of keys for hash are given in advance, the idea w
 
 ## Trade-offs Due to Time Constraints
 
-### Service observability: Telemetry & Alarming
-While the service comes with an out-of-the-box admin endpoint provided by Dropwizard, the base code lacks an observability system that can leverage these metrics. This observability is essential for production development, especially since there's no way to monitor if the sidecar updating the ipsum.txt dataset is functioning correctly. Ideally, one should retrieve the last time the blocklist was reloaded using the corresponding endpoint metric and set up an alarm to monitor when this metric fails. Typically, this monitoring is handled by the observability system.
-Another significant oversight in the current implementation is the absence of a centralized system for storing metrics. Without this, autoscaling based on the service load becomes challenging. It would necessitate polling all servers behind the load balancer, aggregating this data, and then making a decision to scale up or down. Most cloud providers utilize their own metric and observability systems to facilitate such functionality.
+### Service Observability: Telemetry and Alarming
 
+The service is equipped with a default admin endpoint, courtesy of **Dropwizard**. However, the foundational code does not incorporate a comprehensive observability system that can harness these metrics effectively. Such observability is paramount for production-grade deployments. A notable concern is the inability to monitor the sidecar's functionality in updating the `ipsum.txt` dataset.
+
+For optimal monitoring, one should access the timestamp of the last blocklist reload via the relevant endpoint metric. Subsequently, an alarm should be established to track any discrepancies or failures in this metric. Typically, such monitoring tasks are the purview of the observability system.
+
+Another area that requires attention is the lack of a centralized metrics storage system. This omission complicates autoscaling based on service load. The current setup would require polling each server behind the load balancer, aggregating the data, and then determining the scaling direction (either scaling up or down). It's worth noting that many cloud providers offer integrated metric and observability solutions to streamline these processes.
