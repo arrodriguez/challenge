@@ -1,80 +1,116 @@
 # IP Block List Service Design Document
+
 ## Problem Statement
-We need to create a microservice that manages a blocklist of IPs. This service will be used to prevent abuse in different applications and to ban IPs known to be used for malicious purposes.
 
-Given that this type of problem can be as complex as we want, we will limit the scope of the design to the following core features:
+A microservice is required to manage an IP blocklist. The primary purpose of this service is to prevent abuse across various applications and to blacklist IPs known for malicious activities. Recognizing the potential complexity of such a problem, the design's scope will be confined to the following essential features:
 
-* Consumers will be able to test if a determined IPv4 address appears in 30+ different publicly available lists of suspicious and/or malicious IP addresses. Expose this functionality with a distributed service using REST API-like standards.
-* This service should be highly available, minimizing the time it takes to restart it and the downtime when updating the blocklist.
-* The service should remain operational under heavy load and be able to respond in a reasonably short time. We will run benchmarks comparing a set of different competitors services.
+- Enable consumers to verify if a specific IPv4 address is present in 30 or more publicly accessible lists of suspicious and/or malicious IP addresses. This functionality will be made available through a distributed service adhering to REST API standards.
+- Ensure the service's high availability, emphasizing swift restart times and minimal downtime during blocklist updates.
+- Maintain the service's operational efficiency under substantial load, guaranteeing prompt responses.
 
 ## Summary
-* The service will implement a hashing structure with perfect hash or cuckoo hash as implementation,
-* The service will update every 24 hs using a lockless approach with atomic references,
-* The service will scale up/down as much as needed driven by the load of the service,
-* The service will use a loadbalancer in top of previous autoscaling characteristic.
 
-## Core feature design choices
+- A hashing structure will be employed by the service, utilizing either perfect hash or cuckoo hash for implementation.
+- The service will undergo updates every 24 hours, leveraging a lockless approach supported by atomic references.
+- Driven by its load, the service will possess the capability to scale both upwards and downwards as necessary.
+- A load balancer will be integrated, complementing the aforementioned autoscaling feature.
 
-### IPV4 blocklist test feature
-We are going to take advantage of [this public list](https://github.com/stamparm/ipsum), which gets updated every 24 hours. We will take this list for granted as part of the requirements. You can look [here](#tradeoffs) for more information.
+## Core Feature Design Choices
 
-Looking at the IP list data source [ipsum.txt](https://github.com/stamparm/ipsum/ipsum.txt) 2 important characteristic was found that will drive the internal implementation of the data structure:
-* It is daily fixed meaning that the dataset is not going to change for the day,
-* It is relatively low in size ( 2 or 3 orders of magnitude ) comparing today's lower tier of available hardware from cloud providers.
-* Dataset size growth rate is unknown.
+### IPV4 Blocklist Test Feature
 
-Before continuing with an implementation proposal, let's take a moment to analyse the last point:
+The advantage of [this public list](https://github.com/stamparm/ipsum), which is updated every 24 hours, will be utilized. This list is accepted as part of the requirements. For further details, refer to the [Blocklist Dataset Decision](#blocklist-dataset-decision) section.
 
-We couldn´t find an approach to measure the growth rate of the dataset because the owner of the repository updates with a force push every day breaking any kind of commit diff or [IPSum history](https://github.com/stamparm/ipsum/activity). Although we don't know how the dataset will growth day by day we do know that the repository has ben daily updated since March 2023 and if we assume that this dataset should have a daily positive growth ( could shrink but looks rare ) and we also know that the dataset size is around 8MB since beginning, we can say relativelly safe that the growth rate is managable.     
+Upon examining the IP list data source [ipsum.txt](https://github.com/stamparm/ipsum/ipsum.txt), three key characteristics were identified that influence the internal data structure design:
+* The dataset remains fixed daily, implying no changes throughout the day.
+* Its size is relatively small (2 or 3 orders of magnitude) compared to the lower-tier hardware available from today's cloud providers.
+* The growth rate of the dataset size is uncertain.
 
-Assuming for now that we are designing an individual unit of computing power, the datastructure will have the following definitions:
+Before proposing an implementation, the last point warrants further analysis:
 
-* We will use an in memory data structure bounded to the service for storing blocked IPv4 information. In most cloud providers the minimal memory hardware available starts from 1GB, storing dozens of MB in memory won't impact system ability to be stable, scalable and failure resilient.
-* We will use a hashing structure that will be optiminal for the access pattern to the data. High throughput for READ ACCESS and almost none WRITE ACCESS during a day meaning that we can assume our dataset to be inmutable, and deal with a different problem of swaping inmutables low size structures in memory.  
+No method was found to measure the dataset's growth rate, as the repository owner updates it with a force push daily, disrupting any commit diff or [IPSum history](https://github.com/stamparm/ipsum/activity). Despite the uncertainty regarding daily dataset growth, it was observed that the repository has been updated daily since March 2023. Given the dataset's consistent size of around 8MB since its inception, it can be reasonably inferred that its growth rate is manageable.
 
-#### Why a hashing structure ? 
-Well, we can use the IPV4 string representation that came from the API call, but we know that computation is more efficient when has to deal with INTEGER OR FLOAT arithmetic. So, first of all converting the string representation of the IPV4 address to a 32bit integer allows efficient storage and quick comparisons. More over, hashing structures has constant-time average complexity for lookups ( also for addition and deletion but in this context insertion, deletion and updates are not as relevant in the critical path ). 
+For the design of an individual computing unit, the data structure has the following specifications:
 
-Applying the technique, the dataset holding 238459 dot decimal format ipv4 addresses ( 1 per line ) went from around 4MB in size to (238459 lines * 4bytes) ~= 0.9 MB  
+* An in-memory data structure tied to the service will store blocked IPv4 address information. Given that the minimum memory hardware from most cloud providers starts at 1GB, storing several MBs in memory should not compromise the system's stability, scalability, or resilience.
+* A hashing structure optimal for data access patterns will be employed. The emphasis is on high READ ACCESS throughput and minimal WRITE ACCESS, allowing the dataset to be treated as immutable. This shifts the challenge to efficiently swapping small, immutable structures in memory.
 
-In conclusion, we managed to make this feature fit well into known patterns and tooling that are proven to work in similar scopes and use-cases. 
+#### Why a Hashing Structure?
 
-### The Service: Achieve high availability
-There are several characteristics from the previous analysis that's was made with high availability in mind,
+While the IPV4 string representation from the API call could be used, computations are generally more efficient with INTEGER or FLOAT arithmetic. Converting the IPV4 address's string representation to a 32-bit integer facilitates efficient storage and quick comparisons. Furthermore, hashing structures offer constant-time average complexity for lookups. 
 
-* Inmutable dataset swaping structures on dataset changes thus minimizing downtime or degradation while updating the dataset,
-* There is NO single point of failure given that we decided to have the entire dataset in memory ( we are not using any external service for storing the dataset ),
+By applying this technique, the dataset, which contained 238,459 dot decimal format IPV4 addresses (1 per line), was reduced from approximately 4MB to roughly 0.9 MB.
 
-The last point is self explanatory, but let's zoom in the first one:
+In conclusion, this feature was adapted to fit well-established patterns and tools known to be effective in similar contexts and use cases.
 
-Having a solution that can watch repository changes ( on daily basis ) notifying all instaces of the service with the changes, and also manage to swap the old dataset with the new will achieve a zero downtime of dataset deployment system. 
+### The Service: Achieving High Availability
 
-#### How so? 
+Several characteristics from the previous analysis were identified with high availability in mind:
 
-Once the service is signaled, we proposed the following implementation:
-* Create a REST style method that some process will call every time the dataset repository is updated,
-* Internally, assuming a hashing structure, we have to implement a mechanism that will handle the concurrency between readers ( client of the service ) and the method for updating the dataset.
+* Immutable dataset structures are swapped during dataset changes, minimizing downtime or degradation during updates.
+* No single point of failure exists since the entire dataset is stored in memory, eliminating reliance on external storage services.
 
-#### Concurrency handling
+The latter point is self-explanatory, but the former requires a deeper dive:
 
-Again using the data ability to NOT be updated regularly or transactionally, we can be even more eager in the search of a high performant implementation thus, we can use processor guarantess to swap the references of the inmutable dataset. Let's try to visualize this:
+A solution capable of monitoring repository changes (on a daily basis) and notifying all service instances of these changes can achieve zero downtime during dataset deployments.
 
-* We create a hash map reference with all the IPV4 entries in the dataset, we wrap the reference 
+#### How So?
+
+The following implementation is proposed once the service receives an update signal:
+* A REST-style method will be introduced, which some process will invoke every time the dataset repository is updated.
+* Internally, given the hashing structure, a mechanism must be developed to manage concurrency between readers (service clients) and the dataset updating method.
+
+#### Concurrency Handling
+
+Given the non-transactional nature of the dataset, an approach focused on high performance is feasible. The processor's guarantees can be harnessed to swap references of the immutable dataset. Here's a step-by-step breakdown:
+
+1. Create a minival perfect hash function reference that encompasses all IPV4 entries in the dataset. This reference is then encapsulated within a CPU atomic reference.
+2. Ensure all lookups utilize this atomic reference.
+3. When a reload signal is activated, instantiate a new Minimal Hash function reference.
+4. Subsequently, perform an atomic swap between the old and new references.
+5. In the event an in-flight thread accesses the old reference, it remains valid. The garbage collector (`gc()`) will only dispose of it once no references to the object exist.
 
 ### The Service: Operational excelence guarantess
 
-### Implementation notes
-The basecode of the project was entirely written in Java. The author does not have much experience working with Java frameworks in the last years, but has sufficient profiency in Java Standard implementation up to 1.6. Nevertheless, a modern REST/HTTP framework was chosen in order to be at pair with market standards. The framework choose was Dropwizard given its simplicity and a [complete quickstart guide](https://www.dropwizard.io/en/stable/getting-started.html) that was used to create the skeleton and helped the author for moving fast with the implementation.
+In the pursuit of operational excellence, several strategic decisions regarding the architecture and scaling of the service have been made. Here's a breakdown of these choices and the rationale behind them:
 
-#### Why a minimal perfect hash algorithm as method for handling collisions? 
-Given that the entire universe of keys for hash are given in advance, the idea was to try to mimic a perfect hashing without 
+#### Horizontal Scaling under a Load Balancer
 
+Horizontal scaling under a load balancer has been chosen. This approach allows incoming network traffic to be efficiently distributed across multiple servers, ensuring high availability and redundancy. In the event of a server failure or heavy traffic to one server, traffic is redirected by the load balancer to other servers in the pool, maintaining a seamless user experience.
 
+#### Stateless Service
 
-#### Drop wizard
+The service has been designed to be stateless, meaning each request is processed without relying on any stored session or user-related data from previous requests. This design choice simplifies scalability since any request can be handled by any server at any time.
+
+#### Dataset Independence
+
+The dataset upon which the service relies is independent, with updates occurring once a day. This predictable update frequency simplifies the scaling strategy and ensures that all servers have access to the most recent data without frequent synchronization needs.
+
+#### Local Data Storage Trade-offs
+
+A challenge that was encountered was data fragmentation and duplication across all servers. However, after careful consideration, it was concluded that storing the dataset locally on each server was the best trade-off. Local storage ensures rapid data access, reduces latency, and eliminates the need for a centralized database that could become a bottleneck or single point of failure.
+
+#### Scaling Triggers: CPU, Memory, or Both
+
+The exact triggers for scaling—whether based on CPU exhaustion, memory exhaustion, or a combination of both—haven't been definitively determined. This aspect requires further analysis and testing to ascertain the most effective and efficient scaling criteria.
+
+In summary, the design choices aim to guarantee operational excellence by ensuring high availability, redundancy, and efficient data access, even as traffic scales.
+
+### Implementation Notes
+
+The base code for the project was written entirely in Java. While the author hasn't extensively worked with Java frameworks in recent years, they possess adequate proficiency with the Java Standard implementation up to version 1.6. To align with current market standards, a modern REST/HTTP framework was selected. Dropwizard was the framework of choice due to its simplicity. A [comprehensive quickstart guide](https://www.dropwizard.io/en/stable/getting-started.html) provided the foundation for the project skeleton and facilitated a swift implementation process for the author.
+
+#### Why a minimal perfect hash algorithm as method for handling collisions?   
+
+In the context of our software, we have the unique advantage of knowing all possible hash keys beforehand. Additionally, our problem doesn't necessitate storing any data associated with these keys. Given these specifics, a minimal perfect hash function emerges as an ideal solution.
+
+However, there isn't a standardized implementation of a perfect hash function. As a result, we turned to open-source projects to find a robust implementation. Our search led us to [this project](https://github.com/vigna/Sux4J/), which stood out for several reasons. Not only does it have artifacts available in the Maven repository, but its substantial number of stars, comprehensive tests, and detailed documentation underscore its reliability and robustness.
 
 ## Trade-offs Due to Time Constraints
+
+### Blocklist Dataset Decision
+
+Due to time constraints, a more optimal solution for the blocklist dataset couldn't be explored. As a result, the solution proposed in the challenge exercise was relied upon.
 
 ### Service Observability: Telemetry and Alarming
 
@@ -83,3 +119,8 @@ The service is equipped with a default admin endpoint, courtesy of **Dropwizard*
 For optimal monitoring, one should access the timestamp of the last blocklist reload via the relevant endpoint metric. Subsequently, an alarm should be established to track any discrepancies or failures in this metric. Typically, such monitoring tasks are the purview of the observability system.
 
 Another area that requires attention is the lack of a centralized metrics storage system. This omission complicates autoscaling based on service load. The current setup would require polling each server behind the load balancer, aggregating the data, and then determining the scaling direction (either scaling up or down). It's worth noting that many cloud providers offer integrated metric and observability solutions to streamline these processes.
+
+### Benchmarks
+
+It was not possible due to time-constraint limitations to explore and Benchmarks with other similar solutions.
+Nevertheless, a load testing was implemented in order to analyse the performance of the service.
