@@ -1,6 +1,6 @@
 # IP blocklist Service  
 This service is intended to be used to prevent abuse in different applications to ban IPs that are known to be used for malicious purposes.  
-We can found [here](DESIGNDOC.md) a complete description of the design choices, compromises or trade-off made in this assignment.  
+We can found [here](docs/DESIGNDOC.md) a complete description of the design choices, compromises or trade-off made in this assignment.  
 
 How to start the service in your development environment
 ---  
@@ -132,9 +132,8 @@ The recommended order of commands to try are:
 2. `docker compose up -d --scale blocklist=4` scales up with 3 more blocklist container service instances.  
 3. `docker compose up -d --scale blocklist=2` scales down reducing in 2 the numbe of blocklist container service instances.  
 
-If you're interested on how the polling ipblocklist dataset mechanism works, you can [continue here](BLOCKLISTMONITOR.md)  
+If you're interested on how the polling ipblocklist dataset mechanism works, you can [continue here](docs/BLOCKLISTMONITOR.md)  
 
 Load testing using [Taurus](https://gettaurus.org/)
 ---
-You can read the entire analisis load test [here](LOADTESTING.md) 
-
+You can read the entire analisis load test [here](docs/LOADTESTING.md) 
