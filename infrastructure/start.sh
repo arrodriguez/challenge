@@ -44,7 +44,7 @@ versionID="$(load_ipblocklist_dataset)"
 start_blocklist_service
 trap "kill $TARGET_PID 2>/dev/null" EXIT
 
-while true; do
+while kill -0 $TARGET_PID 2>/dev/null; do
     # Sleep every 5minutes, this guarantee to NOT reach Github rate-limit
     sleep 5m
     versionID="$(load_ipblocklist_dataset $versionID)"

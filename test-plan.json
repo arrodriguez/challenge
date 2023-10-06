@@ -1,0 +1,35 @@
+{
+ "execution": [
+  {
+   "concurrency": 10,
+   "ramp-up": "10s",
+   "hold-for": "5m",
+   "scenario": "csv-based-test"
+  }
+ ],
+ "scenarios": {
+  "csv-based-test": {
+   "data-sources": [
+    {
+     "path": "./request_path-fragment.csv",
+     "loop": true,
+     "variable-names": "path"
+    }
+   ],
+   "requests": [
+    {
+     "url": "http://localhost:8080/blocklist/ips/${path}",
+     "method": "GET"
+    }
+   ]
+  }
+ },
+ "modules": {
+  "console": {
+    "metrics": [
+        "throughput"
+    ],
+   "disable": false
+  }
+ }
+}

@@ -11,12 +11,12 @@ public class VersionID {
         this.updated = Boolean.FALSE;
     }
     @JsonProperty
-    public String getEventId() {
+    public String getVersionId() {
         return versionId;
     }
     @JsonProperty
-    public Boolean updated() {
-        return this.updated;
+    public Boolean getUpdated() {
+        return updated;
     }
     public void setUpdated(Boolean updated) {
         this.updated = updated;
