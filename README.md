@@ -121,7 +121,7 @@ Under that folder run `docker compose build`.
 
 **`nginx.conf`**: 
 - **Purpose**: Load balancing configuration.
-- **Details**: Manages traffic on port `:8000`, distributing it among all containers spawned by `docker-compose`.
+- **Details**: Manages traffic on port `:8080`, distributing it among all containers spawned by `docker-compose`.
 
 Scaling the service up/down could be trigger executing the following: `docker compose up --scale blocklist=n -d` where indicates
 the number of containers in the scaling group.  

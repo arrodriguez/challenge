@@ -124,3 +124,14 @@ Another area that requires attention is the lack of a centralized metrics storag
 
 It was not possible due to time-constraint limitations to explore and Benchmarks with other similar solutions.
 Nevertheless, a load testing was implemented in order to analyse the performance of the service.
+
+### Decision to Focus on IPv4
+
+While IPv6 is becoming more prevalent, the decision was made to focus primarily on IPv4 for this project. Here are the reasons for this choice:
+
+1. **Simplicity of IPv4:** IPv4 is straightforward and well-understood, making it easier to work with, especially within the constraints of this project.
+2. **IPv6 Complexity:** A comprehensive understanding of how IPv6 operates would necessitate significant research and time investment. While the overall solution might not differ drastically, the nuances of IPv6 could introduce complexities not present with IPv4.
+3. **Blocklist Source Compatibility:** The blocklist sources available for this project are not optimized for IPv6, further justifying the decision to focus on IPv4.
+
+In summary, while IPv6 is essential for modern networking, the decision to prioritize IPv4 was based on simplicity, time constraints, and available resources.
+
